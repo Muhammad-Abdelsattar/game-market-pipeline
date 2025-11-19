@@ -1,0 +1,68 @@
+services:
+  minio-service:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: minio
+    command: server /data --console-address ":9001"
+    env_file:
+      - ../.env
+    networks:
+      - main_network
+    ports:
+      - "9000:9000" # API Port (This is what Python/dbt talks to)
+      - "9001:9001" # Console UI (This is what you view in browser)
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      # Persist data so you don't lose it when you restart docker
+      - ./minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # COMMAND LINE CLIENT FOR MINIO (Optional, helps auto-create buckets)
+  # This service runs once, creates the bucket, and dies.
+  create_buckets:
+    image: minio/mc
+    env_file:
+      - ../.env
+    networks:
+      - main_network
+    depends_on:
+      minio-service:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio-service:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb myminio/${DATA_LAKE_BUCKET};
+      /usr/bin/mc anonymous set public myminio/${DATA_LAKE_BUCKET};
+      exit 0;
+      "
+
+  ingestion:
+    build:
+      context: ../ # Context is the project root so we can see ingestion/ folder
+      dockerfile: ingestion/Dockerfile
+    container_name: local_ingestion
+    depends_on:
+      minio-service:
+        condition: service_healthy
+    env_file:
+      - ../.env
+
+    networks:
+      - main_network
+    
+    environment:
+      - MINIO_ENDPOINT=http://minio-service:9000
+    # We mount the code as a volume so you can edit Python locally 
+    # and run it inside Docker without rebuilding every time!
+    volumes:
+      - ../ingestion:/app
+
+
+networks:
+  main_network:
+    driver: bridge
