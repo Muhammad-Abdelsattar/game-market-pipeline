@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: rawg_lake
+    # Dynamic Schema Name:
+    # In DuckDB, we use 'main'. In Snowflake, we might use 'RAW_SCHEMA'.
+    schema: "{{ 'main' if target.type == 'duckdb' else 'RAW_SCHEMA' }}"
+    
+    tables:
+      - name: raw_games
+        description: "Games data"
+        
+        # DUCKDB CONFIGURATION (Virtual Table over Files)
+        # We wrap this in an IF statement. Snowflake ignores it.
+        meta:
+          external_location: "read_json_auto('s3://rawg-lake/raw/games/**/*.json', filename=true)"
+
+      - name: raw_genres
+        description: "Raw JSON for genres"
+
+        meta:
+          external_location: "read_json_auto('s3://rawg-lake/raw/genres/**/*.json', filename=true)"
+
+      - name: raw_platforms
+        description: "Raw JSON for platforms"
+        meta:
+          external_location: "read_json_auto('s3://rawg-lake/raw/platforms/**/*.json', filename=true)"
+      - name: raw_developers
+        description: "Raw JSON for developers"
+        meta:
+          external_location: "read_json_auto('s3://rawg-lake/raw/developers/**/*.json', filename=true)"
+      - name: raw_publishers
+        description: "Raw JSON for publishers"
+        meta:
+          external_location: "read_json_auto('s3://rawg-lake/raw/publishers/**/*.json', filename=true)"
+        
+        # 2. SNOWFLAKE CONFIGURATION (Real Table)
+        # In Snowflake, we assume a tool (like Fargate or Snowpipe) 
+        # has already copied the JSON into a table named 'raw_games'.
+        # If you use External Tables, you would configure that here via the 'dbt-external-tables' package.
