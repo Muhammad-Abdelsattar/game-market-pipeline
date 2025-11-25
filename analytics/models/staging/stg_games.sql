@@ -10,7 +10,13 @@ flattened as (
 )
 
 select
+    -- Generate Composite Surrogate Key
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'item.id']) }} as game_key,
+    
+    --  Keep Context
+    'RAWG' as source_system,
     item.id as game_id,
+    
     item.slug as game_slug,
     item.name as game_name,
     item.released::date as release_date,
@@ -23,10 +29,7 @@ select
     item.metacritic as metacritic_score,
     item.playtime as playtime_hours,
     item.updated as updated_at,
-    
-    -- Handling nested object (ESRB can be null)
     try_cast(item.esrb_rating.name as varchar) as esrb_rating_name,
-    
     ingestion_date
 from flattened
 qualify row_number() over (partition by game_id order by ingestion_date desc) = 1

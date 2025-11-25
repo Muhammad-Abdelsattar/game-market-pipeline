@@ -17,10 +17,9 @@ games_flattened as (
     from pubs_flattened
     where publisher.games is not null
 )
-
 select 
-    game_item.id::int as game_id,
-    publisher_id,
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'game_item.id']) }} as game_key,
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'publisher_id']) }} as publisher_key,
     ingestion_date
 from games_flattened
-qualify row_number() over (partition by game_id, publisher_id order by ingestion_date desc) = 1
+qualify row_number() over (partition by game_key, publisher_key order by ingestion_date desc) = 1

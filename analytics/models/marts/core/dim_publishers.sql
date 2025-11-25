@@ -1,6 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='publisher_id',
+    unique_key='publisher_key',
     incremental_strategy='merge'
 ) }}
 
@@ -15,6 +15,7 @@ with source as (
 {% endif %}
 
 select
+    publisher_key,
     publisher_id,
     publisher_name,
     publisher_slug,

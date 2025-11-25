@@ -10,11 +10,22 @@ class Config:
     AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY") or os.getenv(
         "MINIO_ROOT_PASSWORD"
     )
-    S3_ENDPOINT = os.getenv("MINIO_ENDPOINT")  # None on AWS, URL on Local
+
+    _raw_endpoint = os.getenv("MINIO_ENDPOINT")
+
+    if _raw_endpoint:
+        if not _raw_endpoint.startswith("http"):
+            S3_ENDPOINT = f"http://{_raw_endpoint}"
+        else:
+            S3_ENDPOINT = _raw_endpoint
+    else:
+        # Default to None (implies real AWS S3)
+        S3_ENDPOINT = None
+
     BUCKET_NAME = os.getenv("DATA_LAKE_BUCKET", "rawg-lake")
 
     # Defaults
-    PAGE_SIZE = 40  # Max allowed by RAWG is 40
+    PAGE_SIZE = 40
 
     def validate(self):
         if not self.RAWG_API_KEY:

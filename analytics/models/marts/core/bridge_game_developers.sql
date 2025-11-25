@@ -1,5 +1,5 @@
 {{ config(materialized='table') }}
 select
-    game_id,
-    developer_id
+    game_key,
+    developer_key
 from {{ ref('stg_game_developers') }}

@@ -1,12 +1,10 @@
 {{ config(
     materialized='incremental',
-    unique_key='game_id',
+    unique_key='game_key', 
     incremental_strategy='merge'
 ) }}
 
-with source as (
-    select * from {{ ref('stg_games') }}
-)
+with source as (select * from {{ ref('stg_games') }})
 
 {% if is_incremental() %}
     , latest_checkpoint as (
@@ -15,6 +13,8 @@ with source as (
 {% endif %}
 
 select
+    game_key,      -- Primary Key
+    source_system,
     game_id,
     game_name,
     game_slug,

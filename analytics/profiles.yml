@@ -1,20 +1,14 @@
 game_analytics:
-  target: dev # Default to local development
+  target: dev
   outputs:
-    
-    # LOCAL DEV (DuckDB + MinIO)
     dev:
       type: duckdb
-      # We create the DB file in the local_ops folder so it's ignored by git
-      path: '../local_ops/local_db.duckdb'
+      # CLEAN PATH!
+      path: '/data_warehouse/game_analytics.duckdb'
       
-      # These settings allow DuckDB to talk to S3/MinIO
       extensions:
         - httpfs
         - aws
-      
-      # We inject the secrets from environment variables
-      # This is SAFE because we don't hardcode passwords here
       settings:
         s3_region: us-east-1
         s3_url_style: path
@@ -22,8 +16,3 @@ game_analytics:
         s3_access_key_id: "{{ env_var('MINIO_ROOT_USER', 'minioadmin') }}"
         s3_secret_access_key: "{{ env_var('MINIO_ROOT_PASSWORD', 'minioadmin') }}"
         s3_use_ssl: false
-
-    # PROD (Snowflake - We will configure this later)
-    # prod:
-    #   type: snowflake
-    #   account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"

@@ -17,11 +17,11 @@ platforms_flattened as (
     from games_flattened
     where game.platforms is not null
 )
-
 select 
-    game_id,
-    -- Access the nested 'platform' object inside the wrapper
-    platform_wrapper.platform.id::int as platform_id,
+    -- Generate BOTH keys so they can join to their respective dimensions
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'game_id']) }} as game_key,
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'platform_wrapper.platform.id']) }} as platform_key,
+    
     ingestion_date
 from platforms_flattened
-qualify row_number() over (partition by game_id, platform_id order by ingestion_date desc) = 1
+qualify row_number() over (partition by game_id, platform_key order by ingestion_date desc) = 1

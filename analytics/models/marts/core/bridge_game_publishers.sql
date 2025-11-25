@@ -1,5 +1,5 @@
 {{ config(materialized='table') }}
 select
-    game_id,
-    publisher_id
+    game_key,
+    publisher_key
 from {{ ref('stg_game_publishers') }}

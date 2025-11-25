@@ -1,0 +1,40 @@
+The above exception was caused by the following exception:
+ImportError: attempted relative import with no known parent package
+
+Stack Trace:
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/code_pointer.py", line 79, in load_python_file
+    return import_module_from_path(module_name, python_file)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster_shared/seven/__init__.py", line 50, in import_module_from_path
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/opt/dagster/app/orchestration/game_dagster/__init__.py", line 3, in <module>
+    from . import assets
+
+  warnings.warn(
+
+2025-11-25 16:59:14 +0000 - dagster-webserver - INFO - Serving dagster-webserver on http://0.0.0.0:3000 in process 1
+
+  Telemetry:
+
+  As an open-source project, we collect usage statistics to inform development priorities. For more
+  information, read https://docs.dagster.io/about/telemetry.
+
+  We will not see or store any data that is processed by your code.
+
+  To opt-out, add the following to $DAGSTER_HOME/dagster.yaml, creating that file if necessary:
+
+    telemetry:
+      enabled: false
+
+
+  Welcome to Dagster!
+
+  If you have any questions or would like to engage with the Dagster team, please join us on Slack
+  (https://bit.ly/39dvSsF).
+
+2025-11-25 16:59:59 +0000 - dagster.code_server - WARNING - No heartbeat received in 45 seconds, shutting down
+2025-11-25 16:59:59 +0000 - dagster.code_server - INFO - Stopping server once all current RPC calls terminate or 60 seconds pass
+2025-11-25 16:59:59 +0000 - dagster.code_server - INFO - Shutting down Dagster code server for file /opt/dagster/app/orchestration/game_dagster/__init__.py in pr
+ocess 9

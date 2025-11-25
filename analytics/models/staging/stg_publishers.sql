@@ -5,7 +5,10 @@ flattened as (
     from source
 )
 select
+    {{ dbt_utils.generate_surrogate_key(["'RAWG'", 'item.id']) }} as publisher_key,
+    'RAWG' as source_system,
     item.id as publisher_id,
+    
     item.name as publisher_name,
     item.slug as publisher_slug,
     item.games_count,
