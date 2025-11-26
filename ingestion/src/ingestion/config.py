@@ -24,14 +24,20 @@ class Config:
 
     BUCKET_NAME = os.getenv("DATA_LAKE_BUCKET", "rawg-lake")
 
+    BUCKET_NAME = os.getenv("DATA_LAKE_BUCKET", "rawg-lake")
+
     # Defaults
     PAGE_SIZE = 40
 
     def validate(self):
         if not self.RAWG_API_KEY:
             raise ValueError("Missing RAWG_API_KEY in environment variables.")
-        if not self.AWS_ACCESS_KEY or not self.AWS_SECRET_KEY:
-            raise ValueError("Missing Storage Credentials (AWS or MINIO).")
+        
+        # If using real S3 (S3_ENDPOINT is None), we might be using IAM Roles, so keys are optional.
+        # If using MinIO (S3_ENDPOINT is set), keys are likely required.
+        if self.S3_ENDPOINT and (not self.AWS_ACCESS_KEY or not self.AWS_SECRET_KEY):
+             raise ValueError("Missing Storage Credentials for MinIO/Custom S3.")
+        
         return True
 
 
