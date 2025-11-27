@@ -1,17 +1,11 @@
 resource "aws_ecr_repository" "ingestion_repo" {
-  name                 = "game-market-ingestion"
+  name                 = "${var.project_name}-ingestion"
   image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+  force_delete         = true
 }
 
 resource "aws_ecr_repository" "analytics_repo" {
-  name                 = "game-market-analytics"
+  name                 = "${var.project_name}-analytics"
   image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+  force_delete         = true
 }

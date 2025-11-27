@@ -1,10 +1,8 @@
 resource "aws_ecs_cluster" "main" {
-  name = "game-market-cluster"
+  name = "${var.project_name}-cluster"
 }
 
-# ------------------------------------------------------------------------------
 # INGESTION TASK
-# ------------------------------------------------------------------------------
 resource "aws_ecs_task_definition" "ingestion_task" {
   family                   = "ingestion-task"
   network_mode             = "awsvpc"
@@ -14,68 +12,58 @@ resource "aws_ecs_task_definition" "ingestion_task" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name      = "ingestion-container"
-      image     = "${aws_ecr_repository.ingestion_repo.repository_url}:latest"
-      essential = true
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = "/ecs/ingestion-task"
-          "awslogs-region"        = var.aws_region
-          "awslogs-stream-prefix" = "ecs"
-          "awslogs-create-group"  = "true"
-        }
+  container_definitions = jsonencode([{
+    name      = "ingestion-container"
+    image     = "${aws_ecr_repository.ingestion_repo.repository_url}:latest"
+    essential = true
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        "awslogs-group" = "/ecs/ingestion",
+        "awslogs-region" = var.aws_region,
+        "awslogs-stream-prefix" = "ecs",
+        "awslogs-create-group" = "true"
       }
-      environment = [
-        {
-          name  = "DATA_LAKE_BUCKET"
-          value = aws_s3_bucket.data_lake.id
-        },
-        # RAWG_API_KEY should ideally be passed via Secrets Manager
-        # environment variable injection here for simplicity
-      ]
     }
-  ])
+    environment = [
+      { name = "DATA_LAKE_BUCKET", value = aws_s3_bucket.data_lake.id },
+      # Note: Pass RAWG_API_KEY via Secrets Manager in Prod
+    ]
+  }])
 }
 
-# ------------------------------------------------------------------------------
-# ANALYTICS (DBT) TASK
-# ------------------------------------------------------------------------------
+# ANALYTICS TASK
 resource "aws_ecs_task_definition" "analytics_task" {
   family                   = "analytics-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
-  memory                   = "1024" # dbt might need a bit more memory
+  memory                   = "1024"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name      = "analytics-container"
-      image     = "${aws_ecr_repository.analytics_repo.repository_url}:latest"
-      essential = true
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = "/ecs/analytics-task"
-          "awslogs-region"        = var.aws_region
-          "awslogs-stream-prefix" = "ecs"
-          "awslogs-create-group"  = "true"
-        }
+  container_definitions = jsonencode([{
+    name      = "analytics-container"
+    image     = "${aws_ecr_repository.analytics_repo.repository_url}:latest"
+    essential = true
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        "awslogs-group" = "/ecs/analytics",
+        "awslogs-region" = var.aws_region,
+        "awslogs-stream-prefix" = "ecs",
+        "awslogs-create-group" = "true"
       }
-      environment = [
-        { name = "SNOWFLAKE_ACCOUNT",   value = var.snowflake_account },
-        { name = "SNOWFLAKE_USER",      value = var.snowflake_user },
-        { name = "SNOWFLAKE_PASSWORD",  value = var.snowflake_password },
-        { name = "SNOWFLAKE_ROLE",      value = var.snowflake_role },
-        { name = "SNOWFLAKE_WAREHOUSE", value = var.snowflake_warehouse },
-        { name = "SNOWFLAKE_DATABASE",  value = var.snowflake_database },
-        { name = "SNOWFLAKE_SCHEMA",    value = var.snowflake_schema },
-        { name = "DBT_PROFILES_DIR",    value = "/app" } # Assuming Dockerfile copies profiles.yml to /app
-      ]
     }
-  ])
+    environment = [
+      { name = "SNOWFLAKE_ACCOUNT", value = var.snowflake_account },
+      { name = "SNOWFLAKE_USER", value = var.snowflake_user },
+      { name = "SNOWFLAKE_PASSWORD", value = var.snowflake_password },
+      { name = "SNOWFLAKE_ROLE", value = var.snowflake_role },
+      { name = "SNOWFLAKE_WAREHOUSE", value = var.snowflake_warehouse },
+      { name = "SNOWFLAKE_DATABASE", value = var.snowflake_database },
+      { name = "SNOWFLAKE_SCHEMA", value = var.snowflake_schema },
+      { name = "DBT_PROFILES_DIR", value = "/app" }
+    ]
+  }])
 }

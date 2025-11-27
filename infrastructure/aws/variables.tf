@@ -16,45 +16,43 @@ variable "endpoints" {
   default     = ["games", "genres", "publishers", "developers", "platforms"]
 }
 
-# ------------------------------------------------------------------------------
-# SNOWFLAKE CREDENTIALS (passed to ECS for dbt)
-# ------------------------------------------------------------------------------
+# Snowflake Connection Vars (Passed to ECS)
 variable "snowflake_account" {
-  description = "Snowflake Account identifier (e.g., xy12345.us-east-1)"
-  type        = string
+  type = string
 }
-
 variable "snowflake_user" {
-  description = "Snowflake Username"
-  type        = string
+  type = string
 }
-
 variable "snowflake_password" {
-  description = "Snowflake Password"
-  type        = string
-  sensitive   = true
+  type      = string
+  sensitive = true
 }
-
 variable "snowflake_role" {
-  description = "Snowflake Role"
-  type        = string
-  default     = "ACCOUNTADMIN"
+  type    = string
+  default = "ACCOUNTADMIN"
 }
-
 variable "snowflake_warehouse" {
-  description = "Snowflake Warehouse"
-  type        = string
-  default     = "COMPUTE_WH"
+  type    = string
+  default = "COMPUTE_WH"
 }
-
 variable "snowflake_database" {
-  description = "Snowflake Database"
-  type        = string
-  default     = "GAME_MARKET_DB"
+  type    = string
+  default = "GAME_MARKET_DB"
+}
+variable "snowflake_schema" {
+  type    = string
+  default = "ANALYTICS"
 }
 
-variable "snowflake_schema" {
-  description = "Snowflake Schema"
+# Handshake Variables (For IAM Trust Policy)
+variable "snowflake_iam_user" {
+  description = "The IAM User ARN provided by Snowflake (Empty on first run)"
   type        = string
-  default     = "ANALYTICS"
+  default     = ""
+}
+
+variable "snowflake_external_id" {
+  description = "The External ID provided by Snowflake (Empty on first run)"
+  type        = string
+  default     = ""
 }
