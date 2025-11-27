@@ -20,13 +20,15 @@ variable "snowflake_role" {
   default     = "ACCOUNTADMIN"
 }
 
-# Variables from AWS Stack
+# ------------------------------------------------------------------------------
+# VARIABLES FROM AWS INFRASTRUCTURE
+# ------------------------------------------------------------------------------
 variable "s3_bucket_name" {
-  description = "Name of the S3 bucket (from AWS stack)"
+  description = "Name of the S3 bucket (Output from AWS Stack)"
   type        = string
 }
 
 variable "aws_role_arn" {
-  description = "ARN of the AWS Role for Snowflake integration (from AWS stack)"
+  description = "ARN of the IAM Role created in AWS Stack for Snowflake"
   type        = string
 }

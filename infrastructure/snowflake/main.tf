@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------------
+# DATABASE & SCHEMAS
+# ------------------------------------------------------------------------------
 resource "snowflake_database" "game_db" {
   name = "GAME_MARKET_DB"
 }
@@ -7,6 +10,14 @@ resource "snowflake_schema" "raw_schema" {
   name     = "RAW"
 }
 
+resource "snowflake_schema" "analytics_schema" {
+  database = snowflake_database.game_db.name
+  name     = "ANALYTICS"
+}
+
+# ------------------------------------------------------------------------------
+# FILE FORMAT
+# ------------------------------------------------------------------------------
 resource "snowflake_file_format" "json_format" {
   database    = snowflake_database.game_db.name
   schema      = snowflake_schema.raw_schema.name
@@ -14,7 +25,9 @@ resource "snowflake_file_format" "json_format" {
   format_type = "JSON"
 }
 
-# Storage Integration (requires AWS IAM Role ARN)
+# ------------------------------------------------------------------------------
+# STORAGE INTEGRATION
+# ------------------------------------------------------------------------------
 resource "snowflake_storage_integration" "s3_int" {
   name    = "GAME_MARKET_S3_INT"
   comment = "Integration with S3 for Game Market Data"
@@ -22,13 +35,14 @@ resource "snowflake_storage_integration" "s3_int" {
 
   enabled = true
 
-  storage_provider         = "S3"
-  storage_aws_role_arn     = var.aws_role_arn
+  storage_provider          = "S3"
+  storage_aws_role_arn      = var.aws_role_arn
   storage_allowed_locations = ["s3://${var.s3_bucket_name}/"]
-  
-  # Note: You need to grant the Snowflake IAM user (storage_aws_iam_user_arn) access to the S3 bucket policy.
 }
 
+# ------------------------------------------------------------------------------
+# EXTERNAL STAGE
+# ------------------------------------------------------------------------------
 resource "snowflake_stage" "s3_stage" {
   name                = "GAME_MARKET_STAGE"
   database            = snowflake_database.game_db.name
@@ -38,7 +52,11 @@ resource "snowflake_stage" "s3_stage" {
   file_format         = snowflake_file_format.json_format.name
 }
 
-# Tables for each endpoint
+# ------------------------------------------------------------------------------
+# RAW TABLES (One for each endpoint)
+# ------------------------------------------------------------------------------
+
+# 1. GAMES
 resource "snowflake_table" "raw_games" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
@@ -50,5 +68,50 @@ resource "snowflake_table" "raw_games" {
   }
 }
 
-# Repeat for other endpoints or use for_each if possible (Terraform for_each with resources)
-# For simplicity, just one example here.
+# 2. GENRES
+resource "snowflake_table" "raw_genres" {
+  database = snowflake_database.game_db.name
+  schema   = snowflake_schema.raw_schema.name
+  name     = "RAW_GENRES"
+
+  column {
+    name = "data"
+    type = "VARIANT"
+  }
+}
+
+# 3. PUBLISHERS
+resource "snowflake_table" "raw_publishers" {
+  database = snowflake_database.game_db.name
+  schema   = snowflake_schema.raw_schema.name
+  name     = "RAW_PUBLISHERS"
+
+  column {
+    name = "data"
+    type = "VARIANT"
+  }
+}
+
+# 4. DEVELOPERS
+resource "snowflake_table" "raw_developers" {
+  database = snowflake_database.game_db.name
+  schema   = snowflake_schema.raw_schema.name
+  name     = "RAW_DEVELOPERS"
+
+  column {
+    name = "data"
+    type = "VARIANT"
+  }
+}
+
+# 5. PLATFORMS
+resource "snowflake_table" "raw_platforms" {
+  database = snowflake_database.game_db.name
+  schema   = snowflake_schema.raw_schema.name
+  name     = "RAW_PLATFORMS"
+
+  column {
+    name = "data"
+    type = "VARIANT"
+  }
+}
