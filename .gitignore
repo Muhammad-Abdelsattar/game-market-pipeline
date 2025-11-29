@@ -8,6 +8,7 @@ logs/
 
 # Environment variables
 .env
+scripts/setup_env.sh
 
 # Local DWH file
 local_ops/data
