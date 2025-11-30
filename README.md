@@ -1,73 +1,61 @@
-# Game Market Pipeline
+# Game Market Data Pipeline
 
-This project implements a robust, automated data pipeline for ingesting, storing, and analyzing gaming market data. It leverages a modern data stack including **Dagster**, **dbt**, **Snowflake**, and **Docker**, with infrastructure fully defined as code using **Terraform**.
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Stack](https://img.shields.io/badge/Stack-Hybrid%20(Local%2FCloud)-blue)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-purple)
 
-## Project Overview
+A robust, environment-agnostic ELT pipeline designed to ingest gaming market data from the RAWG API, process it using a modern data stack, and serve analytical models.
 
-The pipeline is designed to fetch data from the RAWG API, store it in a Data Lake (S3/MinIO), load it into a Data Warehouse (Snowflake/Postgres), and transform it into analytical models.
+The project runs in two modes with complete feature parity:
+1.  **Local Mode:** Docker, MinIO (S3), DuckDB, Dagster.
+2.  **Cloud Mode:** AWS ECS, S3, Snowflake, Step Functions.
 
-### Key Features
+![Architecture Diagram](docs/assets/architecture.png)
 
-- **Infrastructure as Code (IaC)**: Complete cloud environment provisioning (AWS S3, IAM, Snowflake) using Terraform.
-- **Orchestration**: Asset-based orchestration with Dagster, featuring partitioned backfills and lineage tracking.
-- **Transformation**: Modular SQL transformations with dbt, utilizing staging views and materialized marts.
-- **Containerization**: Fully Dockerized environment for consistent local development and cloud deployment.
+## 📚 Documentation
 
-## Architecture
+| Guide | Description |
+| :--- | :--- |
+| **[Architecture](./docs/architecture.md)** | Deep dive into the Pipeline Logic, Hybrid design, and Orchestration. |
+| **[Infrastructure](./docs/infrastructure.md)** | AWS Resource map, Security/IAM logic, and Terraform implementation. |
+| **[DWH Design](./docs/dwh_design.md)** | Data Modeling strategy, JSON handling, and Lineage. |
+| **[Local Setup](./docs/local_setup.md)** | How to run the pipeline locally with Docker. |
+| **[Cloud Deployment](./docs/cloud_deployment.md)** | How to deploy to production using Terraform. |
 
-The pipeline follows a standard ELT (Extract, Load, Transform) pattern:
+## 🚀 Key Features
 
-1.  **Ingestion (Extract)**: Python scripts (`ingestion/`) fetch JSON data from the RAWG API.
-2.  **Data Lake (Load)**: Raw JSON files are uploaded to S3 (Cloud) or MinIO (Local).
-3.  **Data Warehouse (Load)**: External Tables in Snowflake/DuckDB read directly from the Data Lake.
-4.  **Transformation**: dbt models (`analytics/`) clean and structure the data:
-    - **Staging Layer**: Views that flatten JSON data and apply basic type casting.
-    - **Marts Layer**: Materialized tables representing business entities (Games, Platforms, Developers).
+*   **Hybrid Abstraction:** The code (`ingestion/` and `analytics/`) is unaware of the environment. It seamlessly switches between S3/MinIO and Snowflake/DuckDB.
+*   **Infrastructure as Code:** Complete AWS & Snowflake environment provisioning via Terraform.
+*   **Asset-Based Orchestration:** Dynamically generated assets for API endpoints using a Factory Pattern in Dagster.
+*   **Incremental Loading:** Efficiently processes only new data using Partition logic (Hive-style S3 partitions).
+*   **Self-Healing:** API calls use exponential backoff (`tenacity`) to handle rate limits.
 
-### DWH Design
+## 🛠️ Tech Stack
 
-The Data Warehouse is organized into two primary layers:
+*   **Ingestion:** Python 3.12, Boto3, Requests.
+*   **Storage:** AWS S3 (Prod) / MinIO (Dev).
+*   **Compute:** AWS Fargate (Prod) / Docker Containers (Dev).
+*   **Orchestration:** Dagster (Local) / AWS Step Functions (Prod).
+*   **Transformation:** dbt (Data Build Tool).
+*   **Warehouse:** Snowflake (Prod) / DuckDB (Dev).
+*   **IaC:** Terraform.
 
-- **Staging (`stg_`)**: Lightweight views that sit on top of the raw external tables. These handle JSON parsing and column renaming.
-- **Marts (`dim_`, `fct_`)**: The consumption layer. These are materialized as tables for performance and serve as the source of truth for analysis.
-
-### Pipeline Workflow
-
-The orchestration logic is defined in `orchestration/game_dagster/assets.py`. It uses a **Factory Pattern** to dynamically generate assets for different API endpoints (Games, Developers, Publishers), ensuring scalability.
-
-- **Partitioning**: The pipeline uses daily partitions, allowing for incremental data processing and efficient backfills.
-- **Backfills**: Historical data retrieval is managed via a dedicated maintenance job (`maintenance.py`), allowing controlled ingestion of past data.
-
-## Quick Start (Local)
-
-To run the entire stack locally using Docker:
+## ⚡ Quick Start (Local)
 
 1.  **Configure Environment**:
-
     ```bash
     cp .env.example .env
-    # Edit .env with your API keys and credentials
+    # Add your RAWG_API_KEY
     ```
 
 2.  **Start Services**:
-
     ```bash
     make local-start
     ```
 
-    This initializes MinIO (S3), Postgres (Warehouse), and Dagster.
-
 3.  **Access UI**:
-    - Dagster: [http://localhost:3000](http://localhost:3000)
-    - MinIO: [http://localhost:9001](http://localhost:9001)
+    *   Dagster: [http://localhost:3000](http://localhost:3000)
+    *   MinIO: [http://localhost:9001](http://localhost:9001)
 
-For detailed deployment and operational instructions, refer to the [User Manual](./USER_MANUAL.md).
 
-## Roadmap
-
-- [x] Core Pipeline Implementation
-- [x] Infrastructure as Code (Terraform)
-- [ ] Dashboarding (Superset/Metabase) - _Work in Progress_
-- [ ] CI/CD Pipeline (GitHub Actions) - _Work in Progress_
-- [ ] Advanced Data Quality Monitoring
-- [ ] Adding new gamimg data sources
+For detailed instructions, see the [Local Setup Guide](./docs/local_setup.md).
