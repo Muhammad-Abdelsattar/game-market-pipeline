@@ -34,7 +34,3 @@ sources:
         meta:
           external_location: "read_json_auto('s3://rawg-lake/raw/publishers/**/*.json', filename=true)"
         
-        # 2. SNOWFLAKE CONFIGURATION (Real Table)
-        # In Snowflake, we assume a tool (like Fargate or Snowpipe) 
-        # has already copied the JSON into a table named 'raw_games'.
-        # If you use External Tables, you would configure that here via the 'dbt-external-tables' package.
