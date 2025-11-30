@@ -53,7 +53,7 @@ The local environment replicates the cloud architecture using Docker containers:
 Run the following command to initialize and start all services:
 
 ```bash
-make start
+make local-start
 ```
 
 This command will:
@@ -71,13 +71,13 @@ This command will:
 To stop the containers:
 
 ```bash
-make down
+make local-stop
 ```
 
 To stop and **remove all data** (reset):
 
 ```bash
-make clean
+make local-clean
 ```
 
 ---
@@ -88,10 +88,10 @@ Deployment is handled via shell scripts that wrap Terraform and Docker commands.
 
 ### Infrastructure Provisioning
 
-Use the `deploy_infra.sh` script to provision AWS and Snowflake resources. This script handles the complex dependency between AWS IAM roles and Snowflake Storage Integrations.
+Use the `prod-infra-apply` command to provision AWS and Snowflake resources. This wraps the `deploy_infra.sh` script.
 
 ```bash
-./scripts/deploy_infra.sh
+make prod-infra-apply
 ```
 
 **What this script does:**
@@ -102,16 +102,24 @@ Use the `deploy_infra.sh` script to provision AWS and Snowflake resources. This 
 
 ### Code Deployment
 
-Use the `build_and_push.sh` script to build Docker images and push them to AWS ECR.
+Use the `prod-build-push` command to build Docker images and push them to AWS ECR.
 
 ```bash
-./scripts/build_and_push.sh
+make prod-build-push
 ```
 
 **What this script does:**
 1.  Authenticates with AWS ECR.
 2.  Builds the `ingestion` and `analytics` Docker images.
 3.  Tags and pushes the images to your ECR repository.
+
+### Full Release
+
+To run both infrastructure provisioning and code deployment in one go:
+
+```bash
+make prod-deploy-all
+```
 
 ---
 
@@ -174,5 +182,5 @@ We use the `daily_game_market_update` job for both scheduled runs and historical
 
 ### Troubleshooting
 
-*   **Terraform Lock Errors**: If `deploy_infra.sh` fails with a lock error, ensure no other Terraform processes are running. You may need to manually unlock the state using `terraform force-unlock`.
+*   **Terraform Lock Errors**: If `make prod-infra-apply` fails with a lock error, ensure no other Terraform processes are running. You may need to manually unlock the state using `terraform force-unlock`.
 *   **Database Connection Issues**: Ensure the `postgres` container is healthy (`docker ps`). If running locally, check that port 5432 is not occupied by another service.

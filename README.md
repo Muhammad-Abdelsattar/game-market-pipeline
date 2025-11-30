@@ -52,7 +52,7 @@ To run the entire stack locally using Docker:
 2.  **Start Services**:
 
     ```bash
-    make start
+    make local-start
     ```
 
     This initializes MinIO (S3), Postgres (Warehouse), and Dagster.
