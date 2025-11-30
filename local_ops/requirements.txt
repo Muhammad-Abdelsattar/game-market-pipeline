@@ -15,4 +15,4 @@ tenacity==8.2.3
 # Analytics Deps
 dbt-core>=1.7.0
 dbt-duckdb>=1.7.0
-# dbt-snowflake==1.7.0 (Uncomment if needed)
+dbt-snowflake==1.7.0

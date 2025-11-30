@@ -17,7 +17,10 @@ clean-targets:         # Directories to be removed by 'dbt clean'
   - "target"
   - "dbt_packages"
 
-# Global configurations for your models
+# Global configurations for the models
+on-run-start:
+  - "{{ refresh_external_tables() }}"
+
 models:
   game_analytics:
     # Materialization strategy
