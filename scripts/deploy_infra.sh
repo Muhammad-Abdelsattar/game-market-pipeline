@@ -14,7 +14,7 @@ if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
     echo "❌ Error: AWS credentials not found in environment."
     exit 1
 fi
-if [[ -z "$TF_VAR_snowflake_account" ]]; then
+if [[ -z "$TF_VAR_snowflake_account_name" ]]; then
     echo "❌ Error: TF_VAR_snowflake_account not found."
     exit 1
 fi
@@ -38,7 +38,9 @@ echo "   -> Bucket: $S3_BUCKET"
 echo "Phase 2: Snowflake Integration (Creating Storage Object)"
 cd "$SNOWFLAKE_DIR"
 terraform init -upgrade
+# Target ONLY the storage integration to avoid "AssumeRole" errors
 terraform apply -auto-approve \
+    -target=snowflake_storage_integration.s3_int \
     -var="aws_role_arn=$AWS_ROLE_ARN" \
     -var="s3_bucket_name=$S3_BUCKET"
 
@@ -56,6 +58,13 @@ cd "$AWS_DIR"
 terraform apply -auto-approve \
     -var="snowflake_iam_user=$SF_USER" \
     -var="snowflake_external_id=$SF_EXT_ID"
+
+echo "Phase 4: Snowflake Tables (Creating External Tables)"
+cd "$SNOWFLAKE_DIR"
+# Now that AWS trusts Snowflake, we can create the External Tables
+terraform apply -auto-approve \
+    -var="aws_role_arn=$AWS_ROLE_ARN" \
+    -var="s3_bucket_name=$S3_BUCKET"
 
 echo "=========================================================="
 echo "🎉 DEPLOYMENT COMPLETE & SECURED"

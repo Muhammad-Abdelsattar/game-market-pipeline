@@ -56,7 +56,8 @@ resource "aws_ecs_task_definition" "analytics_task" {
       }
     }
     environment = [
-      { name = "SNOWFLAKE_ACCOUNT", value = var.snowflake_account },
+      { name = "SNOWFLAKE_ACCOUNT_NAME", value = var.snowflake_account_name },
+      { name = "SNOWFLAKE_ORGANIZATION_NAME", value = var.snowflake_organization_name },
       { name = "SNOWFLAKE_USER", value = var.snowflake_user },
       { name = "SNOWFLAKE_PASSWORD", value = var.snowflake_password },
       { name = "SNOWFLAKE_ROLE", value = var.snowflake_role },

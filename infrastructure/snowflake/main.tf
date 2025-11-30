@@ -38,54 +38,75 @@ resource "snowflake_stage" "s3_stage" {
   file_format = "FORMAT_NAME = \"${snowflake_database.game_db.name}\".\"${snowflake_schema.raw_schema.name}\".\"${snowflake_file_format.json_format.name}\""
 }
 
-# Raw Tables
 
-resource "snowflake_table" "raw_games" {
+# External Tables
+
+resource "snowflake_external_table" "raw_games" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_GAMES"
   column {
-    name = "data"
+    name = "results"
     type = "VARIANT"
+    as   = "$1:results"
   }
+  file_format = "TYPE = JSON"
+  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/games/"
+  auto_refresh = false
 }
 
-resource "snowflake_table" "raw_genres" {
+resource "snowflake_external_table" "raw_genres" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_GENRES"
   column {
-    name = "data"
+    name = "results"
     type = "VARIANT"
+    as   = "$1:results"
   }
+  file_format = "TYPE = JSON"
+  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/genres/"
+  auto_refresh = false
 }
 
-resource "snowflake_table" "raw_developers" {
+resource "snowflake_external_table" "raw_developers" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_DEVELOPERS"
   column {
-    name = "data"
+    name = "results"
     type = "VARIANT"
+    as   = "$1:results"
   }
+  file_format = "TYPE = JSON"
+  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/developers/"
+  auto_refresh = false
 }
 
-resource "snowflake_table" "raw_publishers" {
+resource "snowflake_external_table" "raw_publishers" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_PUBLISHERS"
   column {
-    name = "data"
+    name = "results"
     type = "VARIANT"
+    as   = "$1:results"
   }
+  file_format = "TYPE = JSON"
+  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/publishers/"
+  auto_refresh = false
 }
 
-resource "snowflake_table" "raw_platforms" {
+resource "snowflake_external_table" "raw_platforms" {
   database = snowflake_database.game_db.name
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_PLATFORMS"
   column {
-    name = "data"
+    name = "results"
     type = "VARIANT"
+    as   = "$1:results"
   }
+  file_format = "TYPE = JSON"
+  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/platforms/"
+  auto_refresh = false
 }

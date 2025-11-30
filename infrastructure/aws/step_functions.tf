@@ -57,7 +57,7 @@ resource "aws_sfn_state_machine" "pipeline" {
           Overrides = {
             ContainerOverrides = [{
               Name = "analytics-container"
-              Command = ["/bin/sh", "-c", "dbt run-operation load_from_s3_to_snowflake --target prod && dbt build --target prod"]
+              Command = ["/bin/sh", "-c", "dbt build --target prod"]
             }]
           }
         }

@@ -1,8 +1,8 @@
-variable "snowflake_account" {
+variable "snowflake_account_name" {
   type = string
 }
 
-variable "snowflake_organization" {
+variable "snowflake_organization_name" {
   type = string
 }
 
