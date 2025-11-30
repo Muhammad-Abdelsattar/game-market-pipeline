@@ -108,6 +108,7 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
 # Define a Config Schema to allow passing flags from the UI
 class DbtConfig(Config):
     full_refresh: bool = False
+    target: str = "dev"
 
 
 @dbt_assets(
@@ -127,6 +128,10 @@ def analytics_dbt_assets(
     if config.full_refresh:
         context.log.info("🔄 Full Refresh Flag detected! Appending --full-refresh")
         dbt_args.append("--full-refresh")
+
+    if config.target:
+        context.log.info(f"🎯 Target detected! Appending --target {config.target}")
+        dbt_args += ["--target", config.target]
 
     # Dagster automatically passes the partition variables to dbt
     # (dbt_vars={ "partition_key": "2024-01-01" ... })

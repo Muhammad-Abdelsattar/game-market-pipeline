@@ -11,3 +11,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy dbt project
 # Install system dependencies (git is needed for dbt packages)
 COPY . . 
+
+RUN dbt deps

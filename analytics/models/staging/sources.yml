@@ -3,8 +3,8 @@ version: 2
 sources:
   - name: rawg_lake
     # Dynamic Schema Name:
-    # In DuckDB, we use 'main'. In Snowflake, we might use 'RAW_SCHEMA'.
-    schema: "{{ 'main' if target.type == 'duckdb' else 'RAW_SCHEMA' }}"
+    # In DuckDB, we use 'main'. In Snowflake, we might use 'RAW'.
+    schema: "{{ 'main' if target.type == 'duckdb' else 'RAW' }}"
     
     tables:
       - name: raw_games
