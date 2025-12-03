@@ -46,10 +46,17 @@ resource "snowflake_external_table" "raw_games" {
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_GAMES"
   column {
+    name = "ingestion_date"
+    type = "DATE"
+    # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
+    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+  }
+  column {
     name = "results"
     type = "VARIANT"
     as   = "$1:results"
   }
+  partition_by = ["ingestion_date"]
   file_format = "TYPE = JSON"
   location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/games/"
   auto_refresh = false
@@ -60,10 +67,17 @@ resource "snowflake_external_table" "raw_genres" {
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_GENRES"
   column {
+    name = "ingestion_date"
+    type = "DATE"
+    # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
+    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+  }
+  column {
     name = "results"
     type = "VARIANT"
     as   = "$1:results"
   }
+  partition_by = ["ingestion_date"]
   file_format = "TYPE = JSON"
   location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/genres/"
   auto_refresh = false
@@ -74,10 +88,17 @@ resource "snowflake_external_table" "raw_developers" {
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_DEVELOPERS"
   column {
+    name = "ingestion_date"
+    type = "DATE"
+    # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
+    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+  }
+  column {
     name = "results"
     type = "VARIANT"
     as   = "$1:results"
   }
+  partition_by = ["ingestion_date"]
   file_format = "TYPE = JSON"
   location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/developers/"
   auto_refresh = false
@@ -88,10 +109,17 @@ resource "snowflake_external_table" "raw_publishers" {
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_PUBLISHERS"
   column {
+    name = "ingestion_date"
+    type = "DATE"
+    # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
+    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+  }
+  column {
     name = "results"
     type = "VARIANT"
     as   = "$1:results"
   }
+  partition_by = ["ingestion_date"]
   file_format = "TYPE = JSON"
   location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/publishers/"
   auto_refresh = false
@@ -102,10 +130,17 @@ resource "snowflake_external_table" "raw_platforms" {
   schema   = snowflake_schema.raw_schema.name
   name     = "RAW_PLATFORMS"
   column {
+    name = "ingestion_date"
+    type = "DATE"
+    # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
+    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+  }
+  column {
     name = "results"
     type = "VARIANT"
     as   = "$1:results"
   }
+  partition_by = ["ingestion_date"]
   file_format = "TYPE = JSON"
   location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/platforms/"
   auto_refresh = false
