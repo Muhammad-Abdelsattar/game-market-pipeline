@@ -1,6 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='game_key', 
+    unique_key=['game_id','source_system'],
     incremental_strategy='merge'
 ) }}
 
