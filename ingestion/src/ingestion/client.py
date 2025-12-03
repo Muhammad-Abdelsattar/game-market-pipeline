@@ -40,6 +40,13 @@ class RAWGClient:
         
         if response.status_code == 200:
             return response.json()
+
+
+        elif response.status_code == 404:
+            # 404 on a list endpoint usually means "Page out of range".
+            # We return an empty structure so the pipeline loop terminates gracefully.
+            logger.info(f"Page {page} not found (404). Assuming end of dataset.")
+            return {"results": [], "next": None}
         elif response.status_code == 429:
             logger.warning("Rate limit hit (429).")
             # In a real production script, we might sleep here manually or let tenacity handle it if we raise an error
