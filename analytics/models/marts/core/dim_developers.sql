@@ -1,9 +1,8 @@
 {{ config(
     materialized='incremental',
-    unique_key='developer_key', 
+    unique_key='developer_id', 
     incremental_strategy='merge'
 ) }}
-
 with source as (select * from {{ ref('stg_developers') }})
 
 {% if is_incremental() %}

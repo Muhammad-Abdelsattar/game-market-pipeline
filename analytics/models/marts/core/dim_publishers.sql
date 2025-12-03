@@ -1,6 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='publisher_key',
+    unique_key='publisher_id',
     incremental_strategy='merge'
 ) }}
 
