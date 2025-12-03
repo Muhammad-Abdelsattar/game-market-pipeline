@@ -18,6 +18,14 @@ class S3Writer:
         )
         self.bucket = config.BUCKET_NAME
 
+    def exists(self, path: str) -> bool:
+        """Checks if a file exists in S3 to allow skipping."""
+        try:
+            self.s3.head_object(Bucket=self.bucket, Key=path)
+            return True
+        except ClientError:
+            return False
+
     def save_json(self, data: dict, path: str):
         """
         Saves a dictionary as a JSON file to S3/MinIO.

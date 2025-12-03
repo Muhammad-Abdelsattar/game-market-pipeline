@@ -34,8 +34,16 @@ def run_pipeline(
             logger.info(f"Reached max_pages limit ({max_pages}). Stopping.")
             break
 
+        file_path = f"raw/{endpoint}/run_date={run_date}/page_{current_page}.json"
+
+        # CHECKPOINT: Skip if done
+        if writer.exists(file_path):
+            logger.info(f"Page {current_page} exists in S3. Skipping.")
+            current_page += 1
+            continue
+
         try:
-            # 2. Pass the api_params here
+            # Pass the api_params here
             data = client.fetch_page(endpoint, page=current_page, params=api_params)
 
             if not data.get("results"):
