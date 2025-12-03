@@ -4,8 +4,8 @@ set -e
 
 # Define paths relative to the script location
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-AWS_DIR="./infrastructure/aws"
-SNOWFLAKE_DIR="./infrastructure/snowflake"
+AWS_DIR="$SCRIPT_DIR/../infrastructure/aws"
+SNOWFLAKE_DIR="$SCRIPT_DIR/../infrastructure/snowflake"
 
 echo "=========================================================="
 echo "GAME PIPELINE INFRASTRUCTURE DEPLOYMENT"
@@ -62,7 +62,7 @@ terraform apply -auto-approve \
     -var="snowflake_external_id=$SF_EXT_ID"
 
 echo "Phase 4: Snowflake Tables (Creating External Tables)"
-cd "../$SNOWFLAKE_DIR"
+cd "$SNOWFLAKE_DIR"
 # Now that AWS trusts Snowflake, we can create the External Tables
 terraform apply -auto-approve \
     -var="aws_role_arn=$AWS_ROLE_ARN" \
