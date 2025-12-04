@@ -27,7 +27,8 @@ terraform init -upgrade
 # We pass empty strings for Snowflake ID to create the role with a placeholder first
 terraform apply -auto-approve \
     -var="snowflake_iam_user=" \
-    -var="snowflake_external_id="
+    -var="snowflake_external_id=" \
+    -var="rawg_api_key=${RAWG_API_KEY}"
 
 # Capture Outputs
 AWS_ROLE_ARN=$(terraform output -raw snowflake_role_arn)
@@ -59,7 +60,11 @@ cd "$AWS_DIR"
 # Now we run AWS apply again, but this time WITH the Snowflake variables
 terraform apply -auto-approve \
     -var="snowflake_iam_user=$SF_USER" \
-    -var="snowflake_external_id=$SF_EXT_ID"
+    -var="snowflake_external_id=$SF_EXT_ID" \
+    -var="rawg_api_key=${RAWG_API_KEY}"
+
+echo "⏳ Waiting for IAM changes to propagate to avoid race conditions..."
+sleep 15
 
 echo "Phase 4: Snowflake Tables (Creating External Tables)"
 cd "$SNOWFLAKE_DIR"
@@ -71,3 +76,4 @@ terraform apply -auto-approve \
 echo "=========================================================="
 echo "🎉 DEPLOYMENT COMPLETE & SECURED"
 echo "=========================================================="
+

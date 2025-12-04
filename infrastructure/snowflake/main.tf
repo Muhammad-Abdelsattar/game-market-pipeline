@@ -34,7 +34,7 @@ resource "snowflake_stage" "s3_stage" {
   schema              = snowflake_schema.raw_schema.name
   url                 = "s3://${var.s3_bucket_name}/raw/"
   storage_integration = snowflake_storage_integration.s3_int.name
-  
+
   file_format = "FORMAT_NAME = \"${snowflake_database.game_db.name}\".\"${snowflake_schema.raw_schema.name}\".\"${snowflake_file_format.json_format.name}\""
 }
 
@@ -49,7 +49,7 @@ resource "snowflake_external_table" "raw_games" {
     name = "ingestion_date"
     type = "DATE"
     # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
-    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+    as = "to_date(split_part(split_part(metadata$filename, 'run_date=', 2), '/', 1), 'YYYY-MM-DD')"
   }
   column {
     name = "results"
@@ -57,8 +57,8 @@ resource "snowflake_external_table" "raw_games" {
     as   = "$1:results"
   }
   partition_by = ["ingestion_date"]
-  file_format = "TYPE = JSON"
-  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/games/"
+  file_format  = "TYPE = JSON"
+  location     = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/games/"
   auto_refresh = false
 }
 
@@ -70,7 +70,7 @@ resource "snowflake_external_table" "raw_genres" {
     name = "ingestion_date"
     type = "DATE"
     # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
-    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+    as = "to_date(split_part(split_part(metadata$filename, 'run_date=', 2), '/', 1), 'YYYY-MM-DD')"
   }
   column {
     name = "results"
@@ -78,8 +78,8 @@ resource "snowflake_external_table" "raw_genres" {
     as   = "$1:results"
   }
   partition_by = ["ingestion_date"]
-  file_format = "TYPE = JSON"
-  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/genres/"
+  file_format  = "TYPE = JSON"
+  location     = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/genres/"
   auto_refresh = false
 }
 
@@ -91,7 +91,7 @@ resource "snowflake_external_table" "raw_developers" {
     name = "ingestion_date"
     type = "DATE"
     # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
-    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+    as = "to_date(split_part(split_part(metadata$filename, 'run_date=', 2), '/', 1), 'YYYY-MM-DD')"
   }
   column {
     name = "results"
@@ -99,8 +99,8 @@ resource "snowflake_external_table" "raw_developers" {
     as   = "$1:results"
   }
   partition_by = ["ingestion_date"]
-  file_format = "TYPE = JSON"
-  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/developers/"
+  file_format  = "TYPE = JSON"
+  location     = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/developers/"
   auto_refresh = false
 }
 
@@ -112,7 +112,7 @@ resource "snowflake_external_table" "raw_publishers" {
     name = "ingestion_date"
     type = "DATE"
     # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
-    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+    as = "to_date(split_part(split_part(metadata$filename, 'run_date=', 2), '/', 1), 'YYYY-MM-DD')"
   }
   column {
     name = "results"
@@ -120,8 +120,8 @@ resource "snowflake_external_table" "raw_publishers" {
     as   = "$1:results"
   }
   partition_by = ["ingestion_date"]
-  file_format = "TYPE = JSON"
-  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/publishers/"
+  file_format  = "TYPE = JSON"
+  location     = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/publishers/"
   auto_refresh = false
 }
 
@@ -133,7 +133,7 @@ resource "snowflake_external_table" "raw_platforms" {
     name = "ingestion_date"
     type = "DATE"
     # Extract YYYY-MM-DD from "path/run_date=2024-01-01/file.json"
-    as   = "TO_DATE(REGEXP_SUBSTR(metadata$filename, 'run_date=([0-9]{4}-[0-9]{2}-[0-9]{2})', 1, 1, 'e', 1))"
+    as = "to_date(split_part(split_part(metadata$filename, 'run_date=', 2), '/', 1), 'YYYY-MM-DD')"
   }
   column {
     name = "results"
@@ -141,7 +141,7 @@ resource "snowflake_external_table" "raw_platforms" {
     as   = "$1:results"
   }
   partition_by = ["ingestion_date"]
-  file_format = "TYPE = JSON"
-  location    = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/platforms/"
+  file_format  = "TYPE = JSON"
+  location     = "@${snowflake_database.game_db.name}.${snowflake_schema.raw_schema.name}.${snowflake_stage.s3_stage.name}/platforms/"
   auto_refresh = false
 }
