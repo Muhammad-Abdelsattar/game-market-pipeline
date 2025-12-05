@@ -39,6 +39,13 @@ jobs:
       # Dummy values just to allow dbt to start up
       SNOWFLAKE_ACCOUNT_NAME: "dummy_user"
       SNOWFLAKE_ORGANIZATION_NAME: "dummy_org"
+      SNOWFLAKE_USER: "dummy_user"
+      SNOWFLAKE_PASSWORD: "dummy_password"
+      SNOWFLAKE_ROLE: "dummy_role"
+      SNOWFLAKE_WAREHOUSE: "dummy_warehouse"
+      SNOWFLAKE_DATABASE: "dummy_database"
+      SNOWFLAKE_SCHEMA: "dummy_schema"
+      
       
     steps:
       - uses: actions/checkout@v5
