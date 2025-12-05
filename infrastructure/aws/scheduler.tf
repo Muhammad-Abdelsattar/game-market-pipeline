@@ -1,4 +1,4 @@
-# The IAM Role for the Scheduler
+# The iam Role for the Scheduler
 resource "aws_iam_role" "scheduler_role" {
   name = "${var.project_name}-scheduler-role"
 
