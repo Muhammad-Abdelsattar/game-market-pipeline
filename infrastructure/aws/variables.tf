@@ -66,3 +66,9 @@ variable "rawg_api_key" {
   type        = string
   sensitive   = true
 }
+
+# The GH repo name for CICD and portability
+variable "github_repo" {
+  description = "The owner/repo-name of the GitHub repository (e.g. 'jdoe/game-pipeline')"
+  type        = string
+}
