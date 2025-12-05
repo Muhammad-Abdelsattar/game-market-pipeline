@@ -59,3 +59,10 @@ variable "snowflake_external_id" {
   type        = string
   default     = ""
 }
+
+# RAWG API Key (Passed to ECS)
+variable "rawg_api_key" {
+  description = "API Key for RAWG (passed to ECS)"
+  type        = string
+  sensitive   = true
+}

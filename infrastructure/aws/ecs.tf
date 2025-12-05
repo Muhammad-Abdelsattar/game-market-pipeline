@@ -1,6 +1,18 @@
 resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
 }
+# Logs
+resource "aws_cloudwatch_log_group" "ingestion_logs" {
+  name              = "/ecs/ingestion"
+  retention_in_days = 7
+  skip_destroy      = false
+}
+
+resource "aws_cloudwatch_log_group" "analytics_logs" {
+  name              = "/ecs/analytics"
+  retention_in_days = 7
+  skip_destroy      = false
+}
 
 # INGESTION TASK
 resource "aws_ecs_task_definition" "ingestion_task" {
@@ -19,15 +31,14 @@ resource "aws_ecs_task_definition" "ingestion_task" {
     logConfiguration = {
       logDriver = "awslogs",
       options = {
-        "awslogs-group" = "/ecs/ingestion",
-        "awslogs-region" = var.aws_region,
+        "awslogs-group"         = "/ecs/ingestion",
+        "awslogs-region"        = var.aws_region,
         "awslogs-stream-prefix" = "ecs",
-        "awslogs-create-group" = "true"
       }
     }
     environment = [
       { name = "DATA_LAKE_BUCKET", value = aws_s3_bucket.data_lake.id },
-      # Note: Pass RAWG_API_KEY via Secrets Manager in Prod
+      { name = "RAWG_API_KEY", value = var.rawg_api_key }
     ]
   }])
 }
@@ -49,10 +60,9 @@ resource "aws_ecs_task_definition" "analytics_task" {
     logConfiguration = {
       logDriver = "awslogs",
       options = {
-        "awslogs-group" = "/ecs/analytics",
-        "awslogs-region" = var.aws_region,
+        "awslogs-group"         = "/ecs/analytics",
+        "awslogs-region"        = var.aws_region,
         "awslogs-stream-prefix" = "ecs",
-        "awslogs-create-group" = "true"
       }
     }
     environment = [

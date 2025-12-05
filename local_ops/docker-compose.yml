@@ -34,7 +34,7 @@ services:
       "
 
   postgres:
-    image: postgres:latest
+    image: postgres:17.5-alpine
     environment:
       POSTGRES_USER: dagster
       POSTGRES_PASSWORD: dagster
