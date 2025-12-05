@@ -3,6 +3,14 @@
 # ==============================================================================
 COMPOSE_FILE=local_ops/docker-compose.yml
 ENV_FILE=.env
+PROJECT_NAME ?= game-market
+AWS_REGION ?= us-east-1
+
+# Export them so scripts and Terraform pick them up automatically
+export PROJECT_NAME
+export AWS_REGION
+# Terraform automatically picks up vars starting with TF_VAR_
+export TF_VAR_project_name=$(PROJECT_NAME)
 
 # ==============================================================================
 # HELPERS
@@ -104,3 +112,11 @@ prod-infra-destroy:
 .PHONY: prod-deploy-all
 prod-deploy-all: prod-infra-apply prod-build-push
 	@echo ">>> Full Deployment Complete!"
+
+
+.PHONY: prod-restart
+prod-restart:
+	@echo ">> Force updating ECS Services..."
+	@aws ecs update-service --cluster $(PROJECT_NAME)-cluster --service ingestion-service --force-new-deployment > /dev/null
+	@aws ecs update-service --cluster $(PROJECT_NAME)-cluster --service analytics-service --force-new-deployment > /dev/null
+	@echo ">>> ECS Services restarting with new images."

@@ -1,0 +1,47 @@
+name: CD - Infrastructure
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'infrastructure/**'
+      - 'scripts/deploy_infra.sh'
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  # Dynamic ARN construction using the Secret
+  ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deployer
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
+
+      - name: Apply Infrastructure
+        env:
+          # Inject Secrets into Terraform Variables
+          TF_VAR_snowflake_account_name: ${{ secrets.SNOWFLAKE_ACCOUNT_NAME }}
+          TF_VAR_snowflake_organization_name: ${{ secrets.SNOWFLAKE_ORG_NAME }}
+          TF_VAR_snowflake_user: ${{ secrets.SNOWFLAKE_USER }}
+          TF_VAR_snowflake_password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          TF_VAR_rawg_api_key: ${{ secrets.RAWG_API_KEY }}
+          # Pass the Repo Name dynamically based on the GitHub Context
+          TF_VAR_github_repo: ${{ github.repository }}
+          # Pass API Key for the shell script env var
+          RAWG_API_KEY: ${{ secrets.RAWG_API_KEY }}
+        run: make prod-infra-apply
