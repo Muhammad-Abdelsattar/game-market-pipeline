@@ -30,7 +30,7 @@ resource "aws_sfn_state_machine" "pipeline" {
                   Overrides = {
                     ContainerOverrides = [{
                       Name = "ingestion-container"
-                      Command = ["--endpoint", endpoint, "--max_pages", "5"]
+                      Command = ["--endpoint", endpoint, "--max_pages", "-1"]
                     }]
                   }
                 }
