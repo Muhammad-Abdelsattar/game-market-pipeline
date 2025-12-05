@@ -5,7 +5,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "github_actions_role" {
-  name = "github-actions-deployer" # We will reference this name in YAML workflow. IT MUST BE THE SAME
+  name = "github-actions-deployer" # We will reference this name in YAML workflow. IT MUST BE THE EXACT SAME SAME
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
