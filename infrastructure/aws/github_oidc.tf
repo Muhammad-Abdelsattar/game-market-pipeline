@@ -17,7 +17,7 @@ resource "aws_iam_role" "github_actions_role" {
       }
       Condition = {
         StringLike = {
-          # SECURITY: Only allows our specific repo variable
+          # security: Only allows our specific repo variable
           "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
         }
       }
