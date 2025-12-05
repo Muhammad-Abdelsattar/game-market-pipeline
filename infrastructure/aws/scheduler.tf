@@ -5,8 +5,8 @@ resource "aws_iam_role" "scheduler_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
       Principal = { Service = "events.amazonaws.com" }
     }]
   })
@@ -17,8 +17,8 @@ resource "aws_iam_policy" "scheduler_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
-      Action = ["states:StartExecution"]
+      Effect   = "Allow"
+      Action   = ["states:StartExecution"]
       Resource = [aws_sfn_state_machine.pipeline.arn]
     }]
   })

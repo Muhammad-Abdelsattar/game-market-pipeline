@@ -14,22 +14,22 @@ resource "aws_sfn_state_machine" "pipeline" {
             StartAt = "Ingest_${endpoint}"
             States = {
               "Ingest_${endpoint}" = {
-                Type = "Task"
+                Type     = "Task"
                 Resource = "arn:aws:states:::ecs:runTask.sync"
                 Parameters = {
-                  LaunchType = "FARGATE"
-                  Cluster = aws_ecs_cluster.main.arn
+                  LaunchType     = "FARGATE"
+                  Cluster        = aws_ecs_cluster.main.arn
                   TaskDefinition = aws_ecs_task_definition.ingestion_task.arn
                   NetworkConfiguration = {
                     AwsvpcConfiguration = {
-                      Subnets = [aws_default_subnet.az1.id, aws_default_subnet.az2.id]
+                      Subnets        = [aws_default_subnet.az1.id, aws_default_subnet.az2.id]
                       SecurityGroups = [aws_security_group.ecs_sg.id]
                       AssignPublicIp = "ENABLED"
                     }
                   }
                   Overrides = {
                     ContainerOverrides = [{
-                      Name = "ingestion-container"
+                      Name    = "ingestion-container"
                       Command = ["--endpoint", endpoint, "--max_pages", "-1"]
                     }]
                   }
@@ -41,22 +41,22 @@ resource "aws_sfn_state_machine" "pipeline" {
         ]
       }
       LoadAndTransform = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::ecs:runTask.sync"
         Parameters = {
-          LaunchType = "FARGATE"
-          Cluster = aws_ecs_cluster.main.arn
+          LaunchType     = "FARGATE"
+          Cluster        = aws_ecs_cluster.main.arn
           TaskDefinition = aws_ecs_task_definition.analytics_task.arn
           NetworkConfiguration = {
             AwsvpcConfiguration = {
-              Subnets = [aws_default_subnet.az1.id, aws_default_subnet.az2.id]
+              Subnets        = [aws_default_subnet.az1.id, aws_default_subnet.az2.id]
               SecurityGroups = [aws_security_group.ecs_sg.id]
               AssignPublicIp = "ENABLED"
             }
           }
           Overrides = {
             ContainerOverrides = [{
-              Name = "analytics-container"
+              Name    = "analytics-container"
               Command = ["/bin/sh", "-c", "dbt build --target snowflake"]
             }]
           }

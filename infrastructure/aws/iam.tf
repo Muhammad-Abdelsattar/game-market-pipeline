@@ -4,8 +4,8 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
       Principal = { Service = "ecs-tasks.amazonaws.com" }
     }]
   })
@@ -22,8 +22,8 @@ resource "aws_iam_role" "ecs_task_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
       Principal = { Service = "ecs-tasks.amazonaws.com" }
     }]
   })
@@ -34,8 +34,8 @@ resource "aws_iam_policy" "ecs_s3_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Effect = "Allow",
-      Action = ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
+      Effect   = "Allow",
+      Action   = ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
       Resource = [aws_s3_bucket.data_lake.arn, "${aws_s3_bucket.data_lake.arn}/*"]
     }]
   })
@@ -79,8 +79,8 @@ resource "aws_iam_policy" "snowflake_s3_access" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Effect = "Allow",
-      Action = ["s3:GetObject", "s3:GetObjectVersion", "s3:ListBucket"],
+      Effect   = "Allow",
+      Action   = ["s3:GetObject", "s3:GetObjectVersion", "s3:ListBucket"],
       Resource = [aws_s3_bucket.data_lake.arn, "${aws_s3_bucket.data_lake.arn}/*"]
     }]
   })
@@ -97,8 +97,8 @@ resource "aws_iam_role" "sfn_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
       Principal = { Service = "states.amazonaws.com" }
     }]
   })
@@ -127,8 +127,8 @@ resource "aws_iam_policy" "sfn_policy" {
         ]
       },
       {
-        Effect = "Allow",
-        Action = ["events:PutTargets", "events:PutRule", "events:DescribeRule"],
+        Effect   = "Allow",
+        Action   = ["events:PutTargets", "events:PutRule", "events:DescribeRule"],
         Resource = "*"
       }
     ]

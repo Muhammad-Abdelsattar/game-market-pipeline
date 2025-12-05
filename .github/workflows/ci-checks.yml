@@ -37,7 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Dummy values just to allow dbt to start up
-      SNOWFLAKE_ACCOUNT: "dummy"
+      SNOWFLAKE_ACCOUNT_NAME: "dummy_user"
+      SNOWFLAKE_ORGANIZATION_NAME: "dummy_org"
+      
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
