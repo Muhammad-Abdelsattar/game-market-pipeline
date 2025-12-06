@@ -1,6 +1,5 @@
 import sys
-# import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from .config import config
 from .client import RAWGClient
 from .storage import S3Writer
@@ -16,10 +15,17 @@ def run_pipeline(
     client = RAWGClient()
     writer = S3Writer()
 
+    # This defines the "Partition" folder in S3 (When the job ran)
     run_date = datetime.now().strftime("%Y-%m-%d")
 
-    # Construct Date Filters
-    # RAWG API expects 'updated' in format "2023-01-01,2023-12-31"
+    # LOGIC: If Step Functions sends no args, default to "Yesterday's Data"
+    if not start_date and not end_date:
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        start_date = yesterday
+        end_date = yesterday
+        logger.info(f"No dates provided. Defaulting to incremental mode: {yesterday}")
+
+    # Construct Date Filters for the API
     api_params = {}
     if start_date and end_date:
         api_params["updated"] = f"{start_date},{end_date}"
@@ -34,26 +40,24 @@ def run_pipeline(
             logger.info(f"Reached max_pages limit ({max_pages}). Stopping.")
             break
 
+        # Define the path once per loop iteration
         file_path = f"raw/{endpoint}/run_date={run_date}/page_{current_page}.json"
 
-        # CHECKPOINT: Skip if done
+        # CHECKPOINT: Idempotency Check
         if writer.exists(file_path):
             logger.info(f"Page {current_page} exists in S3. Skipping.")
             current_page += 1
             continue
 
         try:
-            # Pass the api_params here
+            # API Call
             data = client.fetch_page(endpoint, page=current_page, params=api_params)
 
             if not data.get("results"):
                 logger.info("No results found. Stopping.")
                 break
 
-            # Load
-            # If we are doing a date filter, we might want to save it in a specific "incremental" folder
-            # But for now, keeping it in raw/ is fine, the run_date partition separates them.
-            file_path = f"raw/{endpoint}/run_date={run_date}/page_{current_page}.json"
+            # Save to S3
             writer.save_json(data, file_path)
 
             if not data.get("next"):
@@ -67,17 +71,3 @@ def run_pipeline(
             sys.exit(1)
 
     logger.info(f"Ingestion complete. Processed {current_page - 1} pages.")
-
-
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument("--endpoint", type=str, default="games")
-#     parser.add_argument("--max_pages", type=int, default=5)
-#
-#     # New Arguments
-#     parser.add_argument("--start_date", type=str, help="YYYY-MM-DD", default=None)
-#     parser.add_argument("--end_date", type=str, help="YYYY-MM-DD", default=None)
-#
-#     args = parser.parse_args()
-#
-#     run_pipeline(args.endpoint, args.max_pages, args.start_date, args.end_date)
