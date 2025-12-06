@@ -6,6 +6,14 @@ terraform {
     }
   }
   required_version = ">= 1.0"
+
+  backend "s3" {
+    bucket       = "game-market-pipeline-tf-state" # Change to your unique bucket name
+    key          = "prod/snowflake/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "snowflake" {
