@@ -1,32 +1,29 @@
 # 📊 Data Warehouse & Analytics 
 
-The Data Warehouse is designed to optimize for **scalability** and **schema evolution**. Since the source data is complex, nested JSON, we utilize a "Schema-on-Read" approach.
+The Data Warehouse is designed for **Schema-on-Read** flexibility and **High-Performance Merging**.
 
 ## Layered Architecture
 
-### 1. Raw Layer (External Tables)
-*   **Location:** `GAME_MARKET_DB.RAW`
-*   **Technology:** Snowflake External Tables / DuckDB `read_json_auto`.
-*   **Description:** Virtual tables pointing directly to S3 files.
-*   **Schema:** Single column (`value` or `json_blob`) containing the full JSON object.
-*   **Benefit:** Zero-copy ingestion. If the API adds a new field, we don't need to run `ALTER TABLE`. It's immediately available in the JSON blob.
+### 1. Raw Layer (External Tables & Partitioning)
+*   **Technology:** Snowflake External Tables.
+*   **Optimization:** We use **Partition Pruning**.
+    *   S3 Path: `s3://bucket/raw/games/run_date=2024-01-01/file.json`
+    *   Snowflake Definition: `PARTITION BY (ingestion_date)`
+*   **Benefit:** When dbt runs for a specific day, Snowflake scans **only** that day's folder, not the entire bucket.
 
-### 2. Staging Layer (`stg_`)
-*   **Materialization:** Views.
-*   **Function:**
-    *   **Flattening:** Explodes nested arrays (e.g., A Game has many Genres) into rows.
-    *   **Type Casting:** Converts JSON strings to `INT`, `DATE`, `BOOLEAN`.
-    *   **Renaming:** Maps API keys (e.g., `rating_top`) to business terms (`best_rating`).
-*   **Logic:** Uses custom macros (`json_select`, `explode_json`) to handle cross-db SQL syntax.
+### 2. Marts Layer (Incremental Strategy)
+We use a **Natural Key** strategy for incremental loads to optimize for Snowflake's micro-partitions.
 
-### 3. Marts Layer (`dim_` / `fct_`)
-*   **Materialization:** Tables (Incremental).
-*   **Schema:** Star Schema.
-*   **Entities:**
-    *   `fct_games`: Central fact table containing game metrics (ratings, playtime).
-    *   `dim_developers`, `dim_publishers`: Dimensions joining to the fact.
-    *   `bridge_game_genres`: handling the Many-to-Many relationship between Games and Genres.
+*   **Problem:** Merging on Hash Keys (`MD5(id)`) causes full table scans because hashes are randomly distributed across micro-partitions.
+*   **Solution:** We configure dbt to merge on Natural Keys (`game_id`).
+    *   `unique_key = ['game_id', 'source_system']`
+*   **Result:** Since IDs correlate with time/insertion order, Snowflake can prune 90%+ of the micro-partitions during the merge, significantly reducing costs.
 
-## Data Warehouse Design
+## Data Quality (Contracts)
+
+We enforce quality at the warehouse level using `schema.yml` constraints.
+*   **Uniqueness:** Primary keys must be unique.
+*   **Not Null:** Critical business keys cannot be null.
+*   **Domain Validity:** Example: `user_rating` must be between 0 and 5.
 
 ![Data Model](./assets/DWH.png)
