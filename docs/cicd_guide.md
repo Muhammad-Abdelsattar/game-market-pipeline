@@ -1,6 +1,6 @@
 # 🚀 CI/CD & Security Guide
 
-This project implements a "Senior-Grade" DevSecOps workflow using **GitHub Actions**. It is designed to be secure (Keyless), robust (Drift Detection), and modular (Decoupled pipelines).
+This project implements a DevSecOps workflow using **GitHub Actions**. It is designed to be secure (Keyless), robust (Drift Detection), and modular (Decoupled pipelines).
 
 ## High-Level Workflow
 
