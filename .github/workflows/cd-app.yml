@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  # 1. Define it dynamically (Uses GitHub Variable if set, defaults to 'game-market')
+  # Define it dynamically (Uses GitHub Variable if set, defaults to 'game-market')
   PROJECT_NAME: ${{ vars.PROJECT_NAME || 'game-market' }}
   AWS_REGION: us-east-1
   ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deployer
@@ -34,12 +34,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 2. Use Make (Inherits PROJECT_NAME from env)
+      # Use Make (Inherits PROJECT_NAME from env)
       - name: Build and Push Images
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: make prod-build-push
-
-      # 3. Use Make (No hardcoded AWS CLI commands here)
-      - name: Force ECS Redeployment
-        run: make prod-restart
