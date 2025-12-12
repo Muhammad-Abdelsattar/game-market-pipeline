@@ -6,6 +6,7 @@ on:
     paths:
       - 'infrastructure/**'
       - 'scripts/deploy_infra.sh'
+  workflow_dispatch:
 
 permissions:
   id-token: write # Required for OIDC
