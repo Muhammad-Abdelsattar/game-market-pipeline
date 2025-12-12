@@ -7,6 +7,7 @@ on:
       - 'ingestion/**'
       - 'analytics/**'
       - 'scripts/build_and_push.sh'
+  workflow_dispatch:
 
 permissions:
   id-token: write
